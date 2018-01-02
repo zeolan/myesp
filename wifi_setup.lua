@@ -1,3 +1,4 @@
+print ("wifi setup")
 enduser_setup.start(
   function()
     print("Connected to wifi as:" .. wifi.sta.getip())
