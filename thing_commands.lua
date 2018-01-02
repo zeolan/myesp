@@ -3,7 +3,7 @@ myTimer = nill
 wifi.eventmon.register(wifi.eventmon.STA_GOT_IP,function (T)
     print ("\n\rGOT IP "..T.IP)
     sntp.sync(nil, sntpSuccess, nil, false)
-    timerSetup(5)
+    timerSetup(2)
     getCommands()
     --blinkLed(2)
     --serverSetup()
@@ -12,14 +12,6 @@ wifi.eventmon.register(wifi.eventmon.STA_GOT_IP,function (T)
 end)
 
 function sntpSuccess(s, us, server, info)
-    --print (s)
-    --print (us)
-    --print (server)
-    --print (info)
-    --for k, v in pairs(info) do
-    --    print ("k = "..k)
-    --    print ("v = "..v)
-    --end
     local t = rtctime.epoch2cal(s)
     local dateTime = ""..t.year.." "..t.day.." "..t.mon.." "..t.hour..":"..t.min
     print ("Current Time is "..dateTime)
@@ -33,24 +25,16 @@ function getCommands()
 end
 
 function getCommandsSuccess(code, data)
-    print(code, data, "\n\r")
-    --print (sjson.decode(data)[0])
-    --local d = '{"id":10601519,"command_string":"setledon","position":1,"executed_at":null,"created_at":"2018-01-01T20:03:51Z"}'
     data = string.gsub(data, ":(%s*)null,",":\"sjson.NULL\",")
-    print (data)
     local commandTable = sjson.decode(data)
-    --d:gsub("null","sjson.NULL")
     for n, command in pairs(commandTable) do
         print ("command "..n)
+        cmd, value = parseCommand(command["command_string"])
+        if cmd == "setledon" then setLed(value, 0) end
+        if cmd == "setledoff" then setLed(value, 1) end
+        executeCommand(command["command_string"])
         print (parseCommand(command["command_string"]))
-        for k, v in pairs(command) do
-            --print ("k = "..k)
-            --if v == "sjson.NULL" then v = "" end
-            --print ("v = "..v)
-        end
     end
-    --local firstCommand = commandTable[1]["command_string"]
-    --print (parseCommand(firstCommand))
 end
 
 function setLed(pin, value)
@@ -72,11 +56,13 @@ function timerSetup(interval)
 end
 
 function parseCommand(commandString)
-    _, _, k, v = string.find(commandString, "(%w+)%s*=%s*(%w+)")
+    _, _, k, v = string.find(commandString, "(%w+)%s*=%s*(%w*)")
     return k,v
 end
 
-function executeCommand()
+function executeCommand(cmd)
     local url = "http://api.thingspeak.com/talkbacks/21142/commands/execute.json?api_key=T5EEURWKXI0KKHG8"
-    http.get(url)
+    local tm = rtctime.epoch2cal(rtctime.get())
+    http.get(url, nil, function() print (string.format("Command '%s' executed at %04d/%02d/%02d %02d:%02d",
+                                         cmd, tm["year"], tm["mon"], tm["day"], tm["hour"], tm["min"])) end)
 end
