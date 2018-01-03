@@ -1,5 +1,33 @@
 myTimer = nill
 
+local savedAP = wifi.sta.getapinfo()
+
+function listap(t)
+    for k,v in pairs(t) do
+        for kk, vv in pairs(savedAP) do
+            if type(vv) == "table" then
+                for kkk, vvv in pairs(vv) do
+                    if vvv == k then
+                        vv.auto = true
+                        vv.save = true
+                        wifi.sta.config(vv)
+                        wifi.sta.connect()
+                        break
+                    end
+                end
+            end
+        end
+    end
+end
+
+function connectToAp(ap)
+    local config = {}
+    config.ssid = ap.ssid
+
+end
+
+wifi.sta.getap(listap)
+
 wifi.eventmon.register(wifi.eventmon.STA_GOT_IP,function (T)
     print ("\n\rGOT IP "..T.IP)
     sntp.sync(nil, sntpSuccess, nil, false)
@@ -38,8 +66,10 @@ function getCommandsSuccess(code, data)
 end
 
 function setLed(pin, value)
-  gpio.mode(pin, gpio.OUTPUT)
-  gpio.write(pin, value)
+  if pin ~= "" then
+    gpio.mode(pin, gpio.OUTPUT)
+    gpio.write(pin, value)
+  end
 end
 
 function timerSetup(interval)
