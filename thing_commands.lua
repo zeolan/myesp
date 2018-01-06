@@ -12,6 +12,7 @@ function listap(t)
                         vv.save = true
                         wifi.sta.config(vv)
                         wifi.sta.connect()
+                        collectgarbage()
                         break
                     end
                 end
@@ -43,6 +44,7 @@ function sntpSuccess(s, us, server, info)
     local t = rtctime.epoch2cal(s)
     local dateTime = ""..t.year.." "..t.day.." "..t.mon.." "..t.hour..":"..t.min
     print ("Current Time is "..dateTime)
+    collectgarbage()
     --tm = rtctime.epoch2cal(rtctime.get())
     --print(string.format("%04d/%02d/%02d %02d:%02d:%02d", tm["year"], tm["mon"], tm["day"], tm["hour"], tm["min"], tm["sec"]))
 end
@@ -63,6 +65,7 @@ function getCommandsSuccess(code, data)
         executeCommand(command["command_string"])
         print (parseCommand(command["command_string"]))
     end
+    collectgarbage()
 end
 
 function setLed(pin, value)

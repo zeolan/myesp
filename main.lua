@@ -28,6 +28,9 @@ function readSettings(name)
 end
 
 tmrInterval = readSettings("interval")
+thingSpeakKEY = readSettings("thingSpeakKEY")
+talkBackID = readSettings("talkBackID")
+talkBackKEY = readSettings("talkBackKEY")
 
 if tmrInterval == nill then
   print ("default setting")
@@ -97,6 +100,12 @@ function receiver(sck, data)
             if k == "setTimer" then
                 timerSetup(tonumber(v))
                 saveSettings("interval", v)
+            end
+            if k == "setTalkBackID" then
+                saveSettings("talkBackID", v)
+            end
+            if k == "setTalkBackKEY" then
+                saveSettings("talkBackKEY", v)
             end
             if k == "ssid" then
                 _ssid = v
