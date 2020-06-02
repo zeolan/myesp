@@ -6,4 +6,3 @@ if pin_value == 1 then
 else
     dofile("wifi_setup.lua")
 end
-
