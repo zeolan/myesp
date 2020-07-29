@@ -1,0 +1,1 @@
+'# This file is executed on every boot (including wake-boot from deepsleep)\n#import esp\n#esp.osdebug(None)\nimport uos, machine\n#uos.dupterm(None, 1) # disable REPL on UART(0)\nimport gc\n#import webrepl\n#webrepl.start()\ngc.collect()\n'
