@@ -4,8 +4,51 @@ wifi.eventmon.register(wifi.eventmon.STA_GOT_IP,function (T)
     serverSetup()
     sendData()
     timerSetup(tmrInterval)
+    runWSClient()
+    startMQTT()
 end)
+-----------------------------------
+function startMQTT()
+    m = mqtt.Client("123", 120, "user1", "User1")
 
+    m:connect("m23.cloudmqtt.com", 16312, false, function(client)
+  print("mqtt client connected")
+  -- Calling subscribe/publish only makes sense once the connection
+  -- was successfully established. You can do that either here in the
+  -- 'connect' callback or you need to otherwise make sure the
+  -- connection was established (e.g. tracking connection status or in
+  -- m:on("connect", function)).
+
+  -- subscribe topic with qos = 0
+  client:subscribe("vent/+", 0, function(client) print("subscribe success") end)
+  -- publish a message with data = hello, QoS = 0, retain = 0
+  client:publish("user1", "hello", 0, 0, function(client) print("mqtt message sent") end)
+end,
+function(client, reason)
+  print("failed reason: " .. reason)
+end)
+    m:on("message", function(client, topic, data)
+        print(topic .. ":" )
+        if data ~= nil then
+            print(data)
+        end
+    end)
+end
+---------------------------------
+-----------------------------------
+function runWSClient()
+    local ws = websocket.createClient()
+    
+    print(ws)
+    
+    ws:on("connection",
+    function(ws)
+      print('got ws connection')
+    end)
+    
+    ws:connect('ws://127.0.0.1:80')
+end
+---------------------------------
 myTimer = nill
 srv = nill
 
