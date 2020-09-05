@@ -1,10 +1,38 @@
+--dofile("relay_init.lua")
+station_cfg={}
+station_cfg.ssid="MikroTik-D9809F"
+station_cfg.pwd="$Gadget2011"
+station_cfg.save=true
+--local cfg = dofile("eus_params.lua")
+--wifi.sta.config(station_cfg)
+--wifi.sta.connect()
+print(wifi.sta.getconfig())
+
+g_topic = nil
+g_data = nil
+--wifi.setmode(1)
+--wifi.sta.connect()
+
+ wifi.eventmon.register(wifi.eventmon.STA_DHCP_TIMEOUT, function()
+ print("\n\tSTA - DHCP TIMEOUT")
+ end)
+ 
+ wifi.eventmon.register(wifi.eventmon.STA_DISCONNECTED, function(T)
+ print("\n\tSTA - DISCONNECTED".."\n\tSSID: "..T.SSID.."\n\tBSSID: "..
+ T.BSSID.."\n\treason: "..T.reason)
+ end)
+ 
+wifi.eventmon.register(wifi.eventmon.STA_CONNECTED, function(T)
+ print("\n\tSTA - CONNECTED".."\n\tSSID: "..T.SSID.."\n\tBSSID: "..
+ T.BSSID.."\n\tChannel: "..T.channel)
+ end)
 wifi.eventmon.register(wifi.eventmon.STA_GOT_IP,function (T)
     print ("\n\rGOT IP "..T.IP)
     --blinkLed(2)
-    serverSetup()
-    sendData()
-    timerSetup(tmrInterval)
-    runWSClient()
+    --serverSetup()
+    --sendData()
+    --timerSetup(tmrInterval)
+    --runWSClient()
     startMQTT()
 end)
 -----------------------------------
@@ -29,9 +57,10 @@ function(client, reason)
 end)
     m:on("message", function(client, topic, data)
         print(topic .. ":" )
-        if data ~= nil then
-            print(data)
-        end
+        g_topic = topic
+        g_data = data
+        dofile("mqtt_process.lua")
+        --process_mqtt(topic, data)
     end)
 end
 ---------------------------------
