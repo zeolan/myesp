@@ -1,55 +1,37 @@
+g_cycle_started = false
+g_cycle = nil
+g_cycle_on = nil
+g_vent_speed = nil
+g_topic = nil
+g_data = nil
+m = nil
+
+dofile("read_settings.lua")
+dofile("sntp.lua")
+dofile("wifi_register.lua")
+dofile("relay_init.lua")
 --dofile("relay_init.lua")
 station_cfg={}
 station_cfg.ssid="MikroTik-D9809F"
 station_cfg.pwd="$Gadget2011"
 station_cfg.save=true
+wifi.setmode(wifi.STATION)
 --local cfg = dofile("eus_params.lua")
---wifi.sta.config(station_cfg)
+wifi.sta.config(station_cfg)
 --wifi.sta.connect()
-print(wifi.sta.getconfig())
-
-g_topic = nil
-g_data = nil
+--print(wifi.sta.getconfig())
 --wifi.setmode(1)
 --wifi.sta.connect()
 
- wifi.eventmon.register(wifi.eventmon.STA_DHCP_TIMEOUT, function()
- print("\n\tSTA - DHCP TIMEOUT")
- end)
- 
- wifi.eventmon.register(wifi.eventmon.STA_DISCONNECTED, function(T)
- print("\n\tSTA - DISCONNECTED".."\n\tSSID: "..T.SSID.."\n\tBSSID: "..
- T.BSSID.."\n\treason: "..T.reason)
- end)
- 
-wifi.eventmon.register(wifi.eventmon.STA_CONNECTED, function(T)
- print("\n\tSTA - CONNECTED".."\n\tSSID: "..T.SSID.."\n\tBSSID: "..
- T.BSSID.."\n\tChannel: "..T.channel)
- end)
-wifi.eventmon.register(wifi.eventmon.STA_GOT_IP,function (T)
-    print ("\n\rGOT IP "..T.IP)
-    --blinkLed(2)
-    --serverSetup()
-    --sendData()
-    --timerSetup(tmrInterval)
-    --runWSClient()
-    startMQTT()
-end)
 -----------------------------------
 function startMQTT()
     m = mqtt.Client("123", 120, "user1", "User1")
 
     m:connect("m23.cloudmqtt.com", 16312, false, function(client)
-  print("mqtt client connected")
-  -- Calling subscribe/publish only makes sense once the connection
-  -- was successfully established. You can do that either here in the
-  -- 'connect' callback or you need to otherwise make sure the
-  -- connection was established (e.g. tracking connection status or in
-  -- m:on("connect", function)).
+    print("mqtt client connected")
 
   -- subscribe topic with qos = 0
   client:subscribe("vent/+", 0, function(client) print("subscribe success") end)
-  -- publish a message with data = hello, QoS = 0, retain = 0
   client:publish("user1", "hello", 0, 0, function(client) print("mqtt message sent") end)
 end,
 function(client, reason)
@@ -65,20 +47,8 @@ end)
 end
 ---------------------------------
 -----------------------------------
-function runWSClient()
-    local ws = websocket.createClient()
-    
-    print(ws)
-    
-    ws:on("connection",
-    function(ws)
-      print('got ws connection')
-    end)
-    
-    ws:connect('ws://127.0.0.1:80')
-end
----------------------------------
-myTimer = nill
+
+g_myTimer = nill
 srv = nill
 
 function blinkLed(pin, delay, repeatTimes)
@@ -90,22 +60,6 @@ function blinkLed(pin, delay, repeatTimes)
   gpio.serout(pin, gpio.LOW, arrDelays, 1, function() end)
 end
 
-function readSettings(name)
-  if file.exists(name) then
-    print("Name","Value")  
-    file.open(name,"r+")
-    value = file.read()
-    file.close()
-    print (name, value)
-    return value
-  end
-end
-
-tmrInterval = readSettings("interval")
-thingSpeakKEY = readSettings("thingSpeakKEY")
-talkBackID = readSettings("talkBackID")
-talkBackKEY = readSettings("talkBackKEY")
-apiKey = readSettings("api_key")
 if apiKey ~= nil then
     apiKey = string.match(apiKey, "%s?([0-9%l%-]+)%s*")
 end
@@ -116,34 +70,12 @@ if tmrInterval == nill then
   tmrInterval = 60
 end
 
-function sendData()
-  local status, temp, humi, temp_dec, humi_dec = dht.read11(2)
-  local url = "http://api.thingspeak.com/update?api_key=QRH3VY7R3GM17ERN\&field1="
-  url = url..temp
-  url = url.."\&field2="..humi
-  http.get(url, nill, function() print("sent") end)
-  blinkLed(4, 100000, 2)
-end
-
 function saveSettings(name,value)
-  file.remove(name)
-  file.open(name,"w+")
-  file.write(value)
+  file_name = name..".dat"
+  file.remove(file_name)
+  file.open(file_name,"w+")
+  file.write(tostring(value))
   file.close()
-end
-
-function timerSetup(interval)
-    if myTimer ~= nill then
-        myTimer:stop()
-        myTimer:interval(interval*1000)
-        myTimer:start()
-        tmrInterval = interval
-        print ("--timer changed")
-    else
-        myTimer = tmr.create()
-        myTimer:register(interval*1000, tmr.ALARM_AUTO, sendData);
-        myTimer:start()
-    end
 end
 
 function serverSetup()    

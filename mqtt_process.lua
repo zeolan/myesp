@@ -3,7 +3,14 @@ local K2 = 7
 local K3 = 6
 local K4 = 5
 
-local function set_speed(data)
+function send_status(status)
+    m:publish("vent/status", status, 0, 0,
+        function(client)
+            print("send status")
+        end)
+end
+
+function set_speed(data)
     if data ~= nil then
         print(data)
         if data == "0" then
@@ -36,19 +43,33 @@ local function set_speed(data)
             gpio.write(K2, gpio.LOW)
             gpio.write(K3, gpio.LOW)
         end
+        send_status("OK")
     end
 end
 
-local function set_heater(data)
-
+function set_heater(data)
+    print(data)
 end
 
-local function process_mqtt(topic, data)
-    local sub_topic = string.match(topic, "/(%w+)")
+function set_cycle_on(data)
+    print(data)
+    g_cycle_on = tonumber(data)
+    if g_cycle_on <= g_cycle then
+        saveSettings("cycle_on", g_cycle_on)
+        send_status("OK")
+    else
+        send_status("g_cycle_on > g_cycle")
+    end
+end
+
+function process_mqtt(topic, data)
+    local sub_topic = string.match(topic, "/([%w_]+)")
     if sub_topic == "speed" then
         set_speed(data)
-    elseif sub_topic == "heater" then
+    elseif sub_topic == "heat" then
         set_heater(data)
+    elseif sub_topic == "cycle_on" then
+        set_cycle_on(data)
     end
 end
 
