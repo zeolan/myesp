@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 g_cycle_started = false
 g_cycle = nil
 g_cycle_on = nil
@@ -20,6 +21,9 @@ wifi.setmode(wifi.STATION)
 wifi.sta.config(station_cfg)
 --wifi.sta.connect()
 --print(wifi.sta.getconfig())
+
+g_topic = nil
+g_data = nil
 --wifi.setmode(1)
 --wifi.sta.connect()
 
@@ -49,6 +53,7 @@ end
 -----------------------------------
 
 g_myTimer = nill
+myTimer = nill
 srv = nill
 
 function blinkLed(pin, delay, repeatTimes)
@@ -60,6 +65,27 @@ function blinkLed(pin, delay, repeatTimes)
   gpio.serout(pin, gpio.LOW, arrDelays, 1, function() end)
 end
 
+function readSettings(name, defaultValue)
+  if file.exists(name) then
+    print("Name","Value")  
+    file.open(name,"r+")
+    value = file.read()
+    file.close()
+    print (name, value)
+    return value
+  else
+    return defaultValue
+  end
+end
+
+g_cycle = readSettings("cycle", 30)
+g_cycle_on = readSettings("cycle_on", 10)
+g_vent_speed = readSettings("vent_speed", 1)
+tmrInterval = readSettings("interval", 60)
+thingSpeakKEY = readSettings("thingSpeakKEY", nill)
+talkBackID = readSettings("talkBackID", nill)
+talkBackKEY = readSettings("talkBackKEY", nill)
+apiKey = readSettings("api_key", nill)
 if apiKey ~= nil then
     apiKey = string.match(apiKey, "%s?([0-9%l%-]+)%s*")
 end
