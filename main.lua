@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 g_cycle_started = false
 g_cycle = nil
 g_cycle_on = nil
@@ -6,6 +5,9 @@ g_vent_speed = nil
 g_topic = nil
 g_data = nil
 m = nil
+
+gpio.mode(4, gpio.OUTPUT)
+gpio.write(4, gpio.LOW)
 
 dofile("read_settings.lua")
 dofile("sntp.lua")
@@ -18,7 +20,7 @@ station_cfg.pwd="$Gadget2011"
 station_cfg.save=true
 wifi.setmode(wifi.STATION)
 --local cfg = dofile("eus_params.lua")
-wifi.sta.config(station_cfg)
+--wifi.sta.config(station_cfg)
 --wifi.sta.connect()
 --print(wifi.sta.getconfig())
 
@@ -28,6 +30,13 @@ g_data = nil
 --wifi.sta.connect()
 
 -----------------------------------
+function send_status(status)
+    m:publish("vent/status", status, 0, 0,
+        function(client)
+            --print("send status")
+        end)
+end
+
 function startMQTT()
     m = mqtt.Client("123", 120, "user1", "User1")
 
@@ -35,14 +44,19 @@ function startMQTT()
     print("mqtt client connected")
 
   -- subscribe topic with qos = 0
-  client:subscribe("vent/+", 0, function(client) print("subscribe success") end)
+  client:subscribe("vent/+", 0,
+  function(client)
+    print("subscribe success")
+    gpio.write(4, gpio.HIGH)
+    send_status("READY")
+  end)
   client:publish("user1", "hello", 0, 0, function(client) print("mqtt message sent") end)
 end,
 function(client, reason)
   print("failed reason: " .. reason)
 end)
     m:on("message", function(client, topic, data)
-        print(topic .. ":" )
+        --print(topic .. ":"..data )
         g_topic = topic
         g_data = data
         dofile("mqtt_process.lua")

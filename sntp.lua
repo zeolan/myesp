@@ -46,21 +46,6 @@ end
 --sntp_sync()
 --timerSetup(30)
 
-function timerSetup(interval)
-    if myTimer ~= nill then
-        myTimer:stop()
-        myTimer:interval(interval*1000)
-        myTimer:start()
-        tmrInterval = interval
-        print("--timer changed")
-    else
-        myTimer = tmr.create()
-        myTimer:register(interval*1000, tmr.ALARM_AUTO, sntp_sync);
-        myTimer:start()
-        print("--timer started with interval "..interval)
-    end
-end
-
 function sntp_sync()
     sntp.sync("ua.pool.ntp.org",
       function(sec, usec, server, info)
