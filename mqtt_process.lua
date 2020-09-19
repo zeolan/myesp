@@ -2,13 +2,7 @@ local K1 = 8
 local K2 = 7
 local K3 = 6
 local K4 = 5
-
-function send_status(status)
-    m:publish("vent/status", status, 0, 0,
-        function(client)
-            print("send status")
-        end)
-end
+local H = 2
 
 function set_speed(data)
     if data ~= nil then
@@ -49,6 +43,11 @@ end
 
 function set_heater(data)
     print(data)
+    if data == "0" then
+        gpio.write(H, gpio.LOW)
+    elseif data == "1" then
+        gpio.write(H, gpio.HIGH)
+    end
 end
 
 function set_cycle_on(data)
