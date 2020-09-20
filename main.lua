@@ -20,7 +20,7 @@ station_cfg.pwd="$Gadget2011"
 station_cfg.save=true
 wifi.setmode(wifi.STATION)
 --local cfg = dofile("eus_params.lua")
-wifi.sta.config(station_cfg)
+--wifi.sta.config(station_cfg)
 --wifi.sta.connect()
 --print(wifi.sta.getconfig())
 
@@ -33,7 +33,7 @@ g_data = nil
 function send_status(status)
     m:publish("vent/status", status, 0, 0,
         function(client)
-            print("send status")
+            --print("send status")
         end)
 end
 
@@ -56,7 +56,7 @@ function(client, reason)
   print("failed reason: " .. reason)
 end)
     m:on("message", function(client, topic, data)
-        print(topic .. ":" )
+        --print(topic .. ":"..data )
         g_topic = topic
         g_data = data
         dofile("mqtt_process.lua")
