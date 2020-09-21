@@ -1,7 +1,7 @@
 t = require("ds18b20")
-local pin = 4 -- gpio0 = 3, gpio2 = 4
+ow_pin = 4 -- gpio0 = 3, gpio2 = 4
 
-local function readout(temp)
+function readout(temp)
   if t.sens then
     print("Total number of DS18B20 sensors: ".. #t.sens)
     for i, s in ipairs(t.sens) do
@@ -13,8 +13,8 @@ local function readout(temp)
   end
 
   -- Module can be released when it is no longer needed
-  --t = nil
-  --package.loaded["ds18b20"] = nil
+  t = nil
+  package.loaded["ds18b20"] = nil
 end
 
-t:read_temp(readout, pin, t.C)
+t:read_temp(readout, ow_pin, t.C)

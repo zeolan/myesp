@@ -1,4 +1,4 @@
-print("register wifi callbacks")
+--print("register wifi callbacks")
 
 wifi.eventmon.register(wifi.eventmon.STA_DHCP_TIMEOUT,
     function()
@@ -17,13 +17,17 @@ wifi.eventmon.register(wifi.eventmon.STA_CONNECTED,
     function(T)
         print("\n\tSTA - CONNECTED".."\n\tSSID: "..T.SSID.."\n\tBSSID: "..
         T.BSSID.."\n\tChannel: "..T.channel)
-        timerSetup(g_cycle)
     end
 )
 
 wifi.eventmon.register(wifi.eventmon.STA_GOT_IP,
     function (T)
         print("\n\rGOT IP "..T.IP)
-        startMQTT()
+        if g_myTimer == nil then
+            timerSetup(g_tmr_interval)
+        end
+        if m == nil then
+            startMQTT()
+        end
     end
 )
