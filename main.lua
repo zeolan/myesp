@@ -2,6 +2,7 @@ g_cycle_started = false
 g_on_off = 0
 g_cycle = nil
 g_cycle_on = nil
+g_vent_mode = 0
 g_vent_speed = nil
 g_topic = nil
 g_data = nil
@@ -43,7 +44,7 @@ station_cfg.pwd="$Gadget2011"
 station_cfg.save=true
 wifi.setmode(wifi.STATION)
 --local cfg = dofile("eus_params.lua")
---wifi.sta.config(station_cfg)
+wifi.sta.config(station_cfg)
 --wifi.sta.connect()
 --print(wifi.sta.getconfig())
 
@@ -52,7 +53,7 @@ wifi.setmode(wifi.STATION)
 
 -----------------------------------
 function send_status(status)
-    m:publish("vent/status", status, 0, 0, nil)
+    m:publish("vent/status", status, 1, 0, nil)
 end
 
 function startMQTT()
@@ -70,6 +71,7 @@ function startMQTT()
         client:publish("vent/cycle_on", g_cycle_on, 0, 0, nil)
         client:publish("vent/speed", g_vent_speed, 0, 0, nil)
         client:publish("vent/on_off", g_on_off, 0, 0, nil)
+        client:publish("vent/mode", g_vent_mode, 0, 0, nil)
         client:publish("vent/heat", 0, 0, 0, nil)
       end
   )
