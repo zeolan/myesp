@@ -7,11 +7,14 @@ g_vent_speed = nil
 g_topic = nil
 g_data = nil
 g_tmr_interval = nil
+g_t_max = 300
+g_t_min = 250
 
 g_myTimer = nil
 --myTimer = nil
 
 m = nil
+t = require("ds18b20")
 
 gpio.mode(4, gpio.OUTPUT)
 gpio.write(4, gpio.LOW)
@@ -32,9 +35,10 @@ function timerSetup(interval)
 end
 
 dofile("read_settings.lua")
---dofile("ds18b20_example.lua")
+dofile("ds18b20_example.lua")
 dofile("sntp.lua")
 dofile("wifi_register.lua")
+--t:read_temp(readout, ow_pin, t.C)
 dofile("relay_init.lua")
 dofile("mqtt_process.lua")
 
@@ -44,7 +48,7 @@ station_cfg.pwd="$Gadget2011"
 station_cfg.save=true
 wifi.setmode(wifi.STATION)
 --local cfg = dofile("eus_params.lua")
-wifi.sta.config(station_cfg)
+--wifi.sta.config(station_cfg)
 --wifi.sta.connect()
 --print(wifi.sta.getconfig())
 
@@ -85,6 +89,7 @@ end)
         process_mqtt(topic, data)
     end)
 end
+------------------
 
 function blinkLed(pin, delay, repeatTimes)
   local arrDelays = {}

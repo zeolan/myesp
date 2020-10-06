@@ -1,5 +1,3 @@
---print("register wifi callbacks")
-
 wifi.eventmon.register(wifi.eventmon.STA_DHCP_TIMEOUT,
     function()
         print("\n\tSTA - DHCP TIMEOUT")

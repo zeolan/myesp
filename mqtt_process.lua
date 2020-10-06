@@ -119,7 +119,7 @@ function process_mqtt(topic, data)
             end
         elseif sub_topic == "heat" then
             if g_cycle_started or g_vent_mode == 1 then
-                set_heater(tonumber(data))
+                --set_heater(tonumber(data))
             end
         elseif sub_topic == "cycle_on" then
             set_cycle_on(data)

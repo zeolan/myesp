@@ -1,8 +1,9 @@
 function sntp_sync()
-    --dofile("ds18b20_example.lua")
     sntp.sync("ua.pool.ntp.org",
       function(sec, usec, server, info)
         tm = rtctime.epoch2cal(sec)
+        print("===================================")
+        print(string.format("%04d/%02d/%02d %02d:%02d", tm["year"], tm["mon"], tm["day"], tm["hour"], tm["min"]))
         if g_vent_mode == 2 and not g_cycle_started and tm["min"]%g_cycle == 0 then
             g_cycle_started = true
             print("=== start cycle")
@@ -20,9 +21,7 @@ function sntp_sync()
                 send_status("AUTO->OFF")
             end
         end
-        --print(string.format("%04d/%02d/%02d %02d:%02d:%02d", tm["year"], tm["mon"], tm["day"], tm["hour"], tm["min"], tm["sec"]))
-        --dofile("ds18b20_example.lua")
-        --t:read_temp(readout, ow_pin, t.C)
+        t:read_temp(readout, ow_pin, t.C)
       end,
       function(reason)
        print('sntp sync failed, reason:'..reason)
