@@ -9,6 +9,9 @@ g_data = nil
 g_tmr_interval = nil
 g_t_max = 300
 g_t_min = 250
+g_heat_cycle = 0
+g_heat_status = 0
+g_cnt = 0
 
 g_myTimer = nil
 --myTimer = nil
