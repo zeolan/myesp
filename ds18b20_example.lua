@@ -24,6 +24,7 @@ function readout(temp)
     local s = string.gsub(temp, "%.", "")
     local t = tonumber(s)
     local t_out = nil
+    local t_in = nil
     if ds_addr == ds_out_addr then
         t_out = t
         if t < g_t_max then
@@ -51,6 +52,8 @@ function readout(temp)
         else
             print("more or equal MIN")
         end
+    else
+        t_in = t
     end
     if t_str == "" then
         t_str = t_str .. (string.format("%s.%s", s:sub(-3, -2), s:sub(-1)) .. "/")

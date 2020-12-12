@@ -21,7 +21,7 @@ wifi.eventmon.register(wifi.eventmon.STA_CONNECTED,
 wifi.eventmon.register(wifi.eventmon.STA_GOT_IP,
     function (T)
         print("\n\rGOT IP "..T.IP)
-        if g_myTimer == nil then
+        if g_myTimer == nil and timerSetup ~= nil then
             timerSetup(g_tmr_interval)
         end
         if m == nil then

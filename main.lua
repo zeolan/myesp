@@ -38,6 +38,7 @@ function timerSetup(interval)
 end
 
 dofile("read_settings.lua")
+dofile("init_servo.lua")
 dofile("ds18b20_example.lua")
 dofile("sntp.lua")
 dofile("wifi_register.lua")

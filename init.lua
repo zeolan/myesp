@@ -6,6 +6,7 @@ if pin_value == 1 then
     --dofile("wifi_register.lua")
     --dofile("sntp.lua")
     dofile("main.lua")
+    --dofile("init_servo.lua")
     --dofile("ds18b20_example.lua")
 else
     dofile("wifi_setup.lua")

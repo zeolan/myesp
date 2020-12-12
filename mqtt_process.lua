@@ -55,36 +55,39 @@ end
 function set_speed(data)
     if data ~= nil then
         if data == 0 then
+            servo_timer_start(servo_close)
             gpio.write(K1, gpio.LOW)
             gpio.write(K2, gpio.LOW)
             gpio.write(K3, gpio.LOW)
             gpio.write(K4, gpio.LOW)
             gpio.write(H, gpio.LOW)
             m:publish("vent/heat", 0, 0, 0, nil)
-        end
-        if data == 1 then
-            gpio.write(K1, gpio.HIGH)
-            gpio.write(K2, gpio.LOW)
-            gpio.write(K3, gpio.LOW)
-            gpio.write(K4, gpio.LOW)
-        end
-        if data == 2 then
-            gpio.write(K2, gpio.HIGH)
-            gpio.write(K1, gpio.LOW)
-            gpio.write(K3, gpio.LOW)
-            gpio.write(K4, gpio.LOW)
-        end
-        if data == 3 then
-            gpio.write(K3, gpio.HIGH)
-            gpio.write(K1, gpio.LOW)
-            gpio.write(K2, gpio.LOW)
-            gpio.write(K4, gpio.LOW)
-        end
-        if data == 4 then
-            gpio.write(K4, gpio.HIGH)
-            gpio.write(K1, gpio.LOW)
-            gpio.write(K2, gpio.LOW)
-            gpio.write(K3, gpio.LOW)
+        else
+            servo_timer_start(servo_open)
+            if data == 1 then
+                gpio.write(K1, gpio.HIGH)
+                gpio.write(K2, gpio.LOW)
+                gpio.write(K3, gpio.LOW)
+                gpio.write(K4, gpio.LOW)
+            end
+            if data == 2 then
+                gpio.write(K2, gpio.HIGH)
+                gpio.write(K1, gpio.LOW)
+                gpio.write(K3, gpio.LOW)
+                gpio.write(K4, gpio.LOW)
+            end
+            if data == 3 then
+                gpio.write(K3, gpio.HIGH)
+                gpio.write(K1, gpio.LOW)
+                gpio.write(K2, gpio.LOW)
+                gpio.write(K4, gpio.LOW)
+            end
+            if data == 4 then
+                gpio.write(K4, gpio.HIGH)
+                gpio.write(K1, gpio.LOW)
+                gpio.write(K2, gpio.LOW)
+                gpio.write(K3, gpio.LOW)
+            end
         end
     end
 end
