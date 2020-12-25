@@ -1,11 +1,11 @@
-servo_power_pin = 11 --S3
-servo_pin = 3
+local servo_power_pin = 11 --S3
+local servo_pin = 3
 servo_open = 120
 servo_close = 78
 
 gpio.mode(servo_power_pin, gpio.OUTPUT)
 gpio.write(servo_power_pin, gpio.LOW)
-servo_timer = tmr.create()
+local servo_timer = tmr.create()
                                       
 function servo_timer_start(duty)
     servo_timer:register(500,

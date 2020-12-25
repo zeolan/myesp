@@ -33,10 +33,10 @@ end
 function set_mode(data)
     if data ~= nil then
         g_vent_mode = tonumber(data)
-        if g_vent_mode == 0 then
+        if g_vent_mode == MODE_OFF then
             g_cycle_started = false
             set_speed(0)
-        elseif g_vent_mode == 1 then
+        elseif g_vent_mode == MODE_ON then
             set_speed(g_vent_speed)
         end
     end
@@ -60,7 +60,7 @@ function set_speed(data)
             gpio.write(K2, gpio.LOW)
             gpio.write(K3, gpio.LOW)
             gpio.write(K4, gpio.LOW)
-            gpio.write(H, gpio.LOW)
+            set_heater(0)
             m:publish("vent/heat", 0, 0, 0, nil)
         else
             servo_timer_start(servo_open)
@@ -107,6 +107,15 @@ function set_cycle_on(data)
     end
 end
 
+function set_servo(data)
+    if data == 0 then
+        set_mode(data) -- safety turn of vent
+        servo_timer_start(servo_close)
+    elseif data == 1 then
+        servo_timer_start(servo_open)
+    end
+end
+
 function process_mqtt(topic, data)
     local sub_topic = string.match(topic, "/([%w_]+)")
     if data ~= nil then
@@ -117,15 +126,17 @@ function process_mqtt(topic, data)
             set_mode(g_vent_mode)
         elseif sub_topic == "speed" then
             g_vent_speed = tonumber(data)
-            if g_cycle_started or g_vent_mode == 1 then
+            if g_cycle_started or g_vent_mode == MODE_ON then
                 set_speed(g_vent_speed)
             end
         elseif sub_topic == "heat" then
-            if g_cycle_started or g_vent_mode == 1 then
+            if g_cycle_started or g_vent_mode == MODE_ON then
                 --set_heater(tonumber(data))
             end
         elseif sub_topic == "cycle_on" then
             set_cycle_on(data)
+        elseif sub_topic == "servo" then
+            set_servo(tonumber(data))
         end
         if sub_topic ~= "status" then
             status = get_status(sub_topic, data)

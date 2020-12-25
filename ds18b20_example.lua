@@ -5,14 +5,14 @@ ds_out_addr = 178
 
 function readout(temp)
   --if t.sens then
-    --print("Total number of DS18B20 sensors: ".. #t.sens)
-    --for i, s in ipairs(t.sens) do
-    --  print(string.format("  sensor #%d address: %s%s",  i, ('%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X'):format(s:byte(1,8)), s:byte(9) == 1 and " (parasite)" or ""))
-    --end
+  --  print("Total number of DS18B20 sensors: ".. #t.sens)
+  --  for i, s in ipairs(t.sens) do
+  --    print(string.format("  sensor #%d address: %s%s",  i, ('%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X'):format(s:byte(1,8)), s:byte(9) == 1 and " (parasite)" or ""))
+  --  end
   --end
   if next(temp) == nil then
-    print("empty table")
-    print("turn OFF Heater")
+    --print("empty table")
+    --print("turn OFF Heater")
     set_heater(0)
     send_status("HEATER->OFF")
     return
@@ -20,49 +20,52 @@ function readout(temp)
 
   local t_str = ""
   for addr, temp in pairs(temp) do
-    ds_addr = addr:byte(8,8)
+    local ds_addr = addr:byte(8,8)
     local s = string.gsub(temp, "%.", "")
     local t = tonumber(s)
     local t_out = nil
     local t_in = nil
+    local t_s = nil
     if ds_addr == ds_out_addr then
         t_out = t
         if t < g_t_max then
-            print("less MAX")
+            --print("less MAX")
         else
-            print("more or equal MAX")
-            print("turn OFF Heater")
+            --print("more or equal MAX")
+            --print("turn OFF Heater")
             set_heater(0)
             send_status("HEATER->OFF")
         end
         if t < g_t_min then
-            print("less MIN")
-            if g_cycle_started or g_vent_mode == 1 then
+            --print("less MIN")
+            if g_cycle_started or g_vent_mode == MODE_ON then
                 if g_heat_cycle % 2 == 0 then
                     set_heater(1)
                     send_status("HEATER->1 Cycle")
-                    print("turn ON Heater")
+                    --print("turn ON Heater")
                 else
                     set_heater(1)
                     send_status("HEATER->0 Cycle")
-                    print("turn OFF Heater")
+                    --print("turn OFF Heater")
                 end
                 --g_heat_cycle = 0
             end
         else
-            print("more or equal MIN")
+            --print("more or equal MIN")
         end
     else
         t_in = t
     end
+    t_s = string.format("%s.%s", s:sub(-3, -2), s:sub(-1))
     if t_str == "" then
-        t_str = t_str .. (string.format("%s.%s", s:sub(-3, -2), s:sub(-1)) .. "/")
+        t_str = t_s .. "/"
     else
-        t_str = t_str .. string.format("%s.%s", s:sub(-3, -2), s:sub(-1))
+        t_str = t_str .. t_s
     end
-    print(string.format("Sensor %s: %s °C", ('%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X'):format(addr:byte(1,8)), temp))
+    --print(string.format("Sensor %s: %s °C", ('%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X'):format(addr:byte(1,8)), temp))
   end
   if m ~= nil then
     m:publish("vent/temperature", t_str, 0, 0, nil)
   end
+  --collectgarbage("collect")
 end
