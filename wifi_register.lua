@@ -23,9 +23,13 @@ wifi.eventmon.register(wifi.eventmon.STA_GOT_IP,
         print("\n\rGOT IP "..T.IP)
         if g_myTimer == nil and timerSetup ~= nil then
             timerSetup(g_tmr_interval)
+            timerSetup = nil
         end
         if m == nil then
             startMQTT()
+            startMQTT = nil
         end
+        serverSetup()
+        serverSetup = nil
     end
 )

@@ -1,9 +1,8 @@
 ow_pin = 4 -- gpio0 = 3, gpio2 = 4
 
-ds_in_addr = 172
-ds_out_addr = 178
-
-function readout(temp)
+readout = (function (temp)
+    local ds_in_addr = 172
+    local ds_out_addr = 178
   --if t.sens then
   --  print("Total number of DS18B20 sensors: ".. #t.sens)
   --  for i, s in ipairs(t.sens) do
@@ -65,7 +64,12 @@ function readout(temp)
     --print(string.format("Sensor %s: %s °C", ('%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X'):format(addr:byte(1,8)), temp))
   end
   if m ~= nil then
-    m:publish("vent/temperature", t_str, 0, 0, nil)
+      if g_mqtt_connected then
+        m:publish("vent/temperature", t_str, 0, 0, nil)
+      else
+          print("====> cann't publish")
+          node.restart()
+      end
   end
   --collectgarbage("collect")
-end
+end)

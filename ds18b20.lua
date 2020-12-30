@@ -33,14 +33,9 @@ local MODE = 1
 local pin, cb, unit = 3
 local status = {}
 
-local debugPrint = function() return end
-
 --------------------------------------------------------------------------------
 -- Implementation
 --------------------------------------------------------------------------------
-local function enable_debug()
-  debugPrint = function (...) print(now(),' ', ...) end
-end
 
 local function to_string(addr, esc)
   if type(addr) == 'string' and #addr == 8 then
@@ -84,25 +79,10 @@ local function readout(self)
         local tL=(tA%10000)/1000 + ((tA%1000)/100 >= 5 and 1 or 0)
 
         if tH and (t~=850000) then
-          debugPrint(to_string(addr),(sgn<0 and "-" or "")..tH.."."..tL, crc, b9)
           if crc==b9 then temp[addr]=(sgn<0 and "-" or "")..tH.."."..tL end
           status[i] = 2
         end
         -- end integer version
-      else
-        -- float version
-        t = t / 10000
-        if math_floor(t)~=85 then
-          if unit == 'F' then
-            t = t * 18/10 + 32
-          elseif unit == 'K' then
-            t = t + 27315/100
-          end
-          debugPrint(to_string(addr), t, crc, b9)
-          if crc==b9 then temp[addr]=t end
-          status[i] = 2
-        end
-        -- end float version
       end
     end
     next = next or status[i] == 0
@@ -122,7 +102,6 @@ conversion = (function (self)
   local powered_only = true
   for _, s in ipairs(sens) do powered_only = powered_only and s:byte(9) ~= 1 end
   if powered_only then
-    debugPrint("starting conversion: all sensors")
     ow_reset(pin)
     ow_skip(pin)  -- skip ROM selection, talk to all sensors
     ow_write(pin, CONVERT_T, MODE)  -- and start conversion
@@ -133,7 +112,6 @@ conversion = (function (self)
       if status[i] == 0 then
         local addr, parasite = s:sub(1,8), s:byte(9) == 1
         if parasite and started then break end -- do not start concurrent conversion of powered and parasite
-        debugPrint("starting conversion:", to_string(addr), parasite and "parasite" or "")
         ow_reset(pin)
         ow_select(pin, addr)  -- select the sensor
         ow_write(pin, CONVERT_T, MODE)  -- and start conversion
@@ -155,12 +133,10 @@ local function _search(self, lcb, lpin, search, save)
   local addr
   if not search and #sens == 0 then
     -- load addreses if available
-    debugPrint ("geting addreses from flash")
     local s,check,a = pcall(dofile, "ds18b20_save.lc")
     if s and check == "ds18b20" then
       for i = 1, #a do sens[i] = a[i] end
     end
-    debugPrint (#sens, "addreses found")
   end
 
   ow_setup(pin)
@@ -182,7 +158,6 @@ local function _search(self, lcb, lpin, search, save)
         local parasite = (ow_read(pin)==0 and 1 or 0)
         sens[#sens+1]= addr..string_char(parasite)
         status[#sens] = 0
-        debugPrint("contact: ", to_string(addr), parasite == 1 and "parasite" or "")
       end
       addr = ow_search(pin)
       node_task_post(node_task_LOW_PRIORITY, cycle)
@@ -192,18 +167,12 @@ local function _search(self, lcb, lpin, search, save)
       table_sort(sens, function(a, b) return a:byte(9)<b:byte(9) end) -- parasite
       -- save sensor addreses
       if save then
-        debugPrint ("saving addreses to flash")
 
         local addr_list = {}
         for i =1, #sens do
           local s = sens[i]
           addr_list[i] = to_string(s:sub(1,8), true)..('.."\\%u"'):format(s:byte(9))
         end
-        local save_statement = 'return "ds18b20", {' .. table_concat(addr_list, ',') .. '}'
-        debugPrint (save_statement)
-        local save_file = file_open("ds18b20_save.lc","w")
-        save_file:write(string_dump(loadstring(save_statement)))
-        save_file:close()
       end
       -- end save sensor addreses
       if lcb then node_task_post(node_task_LOW_PRIORITY, lcb) end
@@ -222,7 +191,7 @@ local M = {
   sens = {},
   temp = {},
   C = 'C', F = 'F', K = 'K',
-  read_temp = read_temp, enable_debug = enable_debug
+  read_temp = read_temp
 }
 _G[modname or 'ds18b20'] = M
 return M

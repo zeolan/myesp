@@ -25,6 +25,8 @@ function get_status(sub_topic, data)
                     status = "AUTO->OFF"
                 end
             end
+        elseif sub_topic == "servo" then
+
         end
     end
     return status
@@ -136,7 +138,8 @@ function process_mqtt(topic, data)
         elseif sub_topic == "cycle_on" then
             set_cycle_on(data)
         elseif sub_topic == "servo" then
-            set_servo(tonumber(data))
+            g_servo_mode = tonumber(data)
+            set_servo(g_servo_mode)
         end
         if sub_topic ~= "status" then
             status = get_status(sub_topic, data)

@@ -18,6 +18,8 @@ g_t_min = 250
 g_heat_cycle = 0
 g_heat_status = 0
 g_cnt = 0
+g_servo_mode = 0
+g_mqtt_connected = false
 
 g_myTimer = nil
 
@@ -66,12 +68,12 @@ function servo_timer_start(duty)
 end
 
 dofile("read_settings.lua")
---dofile("init_servo.lua")
 dofile("ds18b20_example.lua")
 dofile("sntp.lua")
 dofile("wifi_register.lua")
 dofile("relay_init.lua")
 dofile("mqtt_process.lua")
+dofile("http_server.lua")
 
 station_cfg={}
 station_cfg.ssid="MikroTik-D9809F"
@@ -91,44 +93,39 @@ function send_status(status)
     m:publish("vent/status", status, 1, 0, nil)
 end
 
-function startMQTT()
+startMQTT = (function ()
     m = mqtt.Client("123", 120, "user1", "User1")
 
     m:connect("m23.cloudmqtt.com", 16312, false, function(client)
-    --print("mqtt client connected")
+            --print("mqtt client connected")
+            g_mqtt_connected = true
 
-    -- subscribe topic with qos = 0
-    client:subscribe("vent/+", 0,
-        function(client)
-            gpio.write(4, gpio.HIGH)
-            --client:publish("vent/cycle_on", g_cycle_on, 0, 0, nil)
-            --client:publish("vent/speed", g_vent_speed, 0, 0, nil)
-            --client:publish("vent/on_off", g_on_off, 0, 0, nil)
-            client:publish("vent/mode", g_vent_mode, 0, 0, nil)
-            --client:publish("vent/heat", 0, 0, 0, nil)
-            send_status("READY")
+            -- subscribe topic with qos = 0
+            client:subscribe("vent/+", 0,
+                function(client)
+                    gpio.write(4, gpio.HIGH)
+                    client:publish("vent/cycle_on", g_cycle_on, 0, 0, nil)
+                    client:publish("vent/speed", g_vent_speed, 0, 0, nil)
+                    client:publish("vent/on_off", g_on_off, 0, 0, nil)
+                    client:publish("vent/mode", g_vent_mode, 0, 0, nil)
+                    client:publish("vent/heat", 0, 0, 0, nil)
+                    send_status("READY")
+                end
+            )
+        end,
+        function(client, reason)
+          print("failed reason: " .. reason)
         end
     )
-end,
-function(client, reason)
-  print("failed reason: " .. reason)
-end)
+
     m:on("message", function(client, topic, data)
         g_topic = topic
         g_data = data
         process_mqtt(topic, data)
     end)
-end
-------------------
 
-function blinkLed(pin, delay, repeatTimes)
-  local arrDelays = {}
-  for i=1,repeatTimes*2 do
-    arrDelays[i] = delay
-  end
-  gpio.mode(pin, gpio.OUTPUT)
-  gpio.serout(pin, gpio.LOW, arrDelays, 1, function() end)
-end
+    m:on("offline", function(client, reason) g_mqtt_connected = false print('===offline') end)
+end)
 
 function saveSettings(name,value)
   file_name = name..".dat"
