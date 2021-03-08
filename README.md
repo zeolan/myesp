@@ -8,3 +8,5 @@ K1 = 8
 K2 = 7
 K3 = 6
 K4 = 5
+Servo PIN = 3
+Servo Power PIN = 11
