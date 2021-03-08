@@ -8,6 +8,7 @@ function sntp_sync_callback(sec, usec, server, info)
         --print(string.format("%04d/%02d/%02d %02d:%02d", tm["year"], tm["mon"], tm["day"], tm["hour"], tm["min"]))
         send_status("AUTO->ON")
         m:publish("vent/speed", g_vent_speed, 0, 0, nil)
+        m:publish("vent/servo", 1, 0, 0, nil)
     end
     if g_cycle_started and tm["min"]%g_cycle >= g_cycle_on then
         g_cycle_started = false
@@ -17,6 +18,7 @@ function sntp_sync_callback(sec, usec, server, info)
             set_speed(0)
             set_heater(0)
             send_status("AUTO->OFF")
+            m:publish("vent/servo", 0, 0, 0, nil)
         end
     end
     --collectgarbage("collect")
@@ -28,11 +30,8 @@ function sntp_sync()
     if g_vent_mode == MODE_ON then
         if g_cnt*10 >= g_cycle_on*60 then
             g_cnt = 0
-            g_vent_mode = MODE_OFF
-            m:publish("vent/mode", g_vent_mode, 0, 0, nil)
-            g_servo_mode = 0
-            set_servo(g_servo_mode)
-            m:publish("vent/servo", g_servo_mode, 0, 0, nil)
+            m:publish("vent/mode", MODE_OFF, 0, 0, nil)
+            m:publish("vent/servo", 0, 0, 0, nil)
         end
     end
     g_heat_cycle = g_heat_cycle + 1 
