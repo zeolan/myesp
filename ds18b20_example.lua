@@ -3,17 +3,15 @@ ow_pin = 4 -- gpio0 = 3, gpio2 = 4
 readout = (function (temp)
     local ds_in_addr = 172
     local ds_out_addr = 178
-  --if t.sens then
-  --  print("Total number of DS18B20 sensors: ".. #t.sens)
+    --if t.sens then
+        --print("Total number of DS18B20 sensors: ".. #t.sens)
   --  for i, s in ipairs(t.sens) do
   --    print(string.format("  sensor #%d address: %s%s",  i, ('%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X'):format(s:byte(1,8)), s:byte(9) == 1 and " (parasite)" or ""))
   --  end
-  --end
+    --end
   if next(temp) == nil then
-    --print("empty table")
-    --print("turn OFF Heater")
     set_heater(0)
-    send_status("HEATER->OFF")
+    send_status("NO DS FOUND")
     return
   end
 
@@ -27,30 +25,23 @@ readout = (function (temp)
     local t_s = nil
     if ds_addr == ds_out_addr then
         t_out = t
-        if t < g_t_max then
-            --print("less MAX")
-        else
-            --print("more or equal MAX")
-            --print("turn OFF Heater")
+        if t > g_t_max then
             set_heater(0)
-            send_status("HEATER->OFF")
-        end
-        if t < g_t_min then
+            send_status("T>Max -> OFF")
+        elseif t < g_t_min then
             --print("less MIN")
             if g_cycle_started or g_vent_mode == MODE_ON then
                 if g_heat_cycle % 2 == 0 then
                     set_heater(1)
-                    send_status("HEATER->1 Cycle")
-                    --print("turn ON Heater")
+                    send_status("T<Min -> ON")
                 else
-                    set_heater(1)
-                    send_status("HEATER->0 Cycle")
-                    --print("turn OFF Heater")
+                    set_heater(0)
+                    send_status("T<Min -> OFF")
                 end
                 --g_heat_cycle = 0
             end
         else
-            --print("more or equal MIN")
+            send_status("TEMP OK")
         end
     else
         t_in = t

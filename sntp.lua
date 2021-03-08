@@ -24,12 +24,22 @@ end
 
 function sntp_sync()
     g_cnt = g_cnt + 1
+    print("sntp_sync "..g_cnt)
+    if g_vent_mode == MODE_ON then
+        if g_cnt*10 >= g_cycle_on*60 then
+            g_cnt = 0
+            g_vent_mode = MODE_OFF
+            m:publish("vent/mode", g_vent_mode, 0, 0, nil)
+            g_servo_mode = 0
+            set_servo(g_servo_mode)
+            m:publish("vent/servo", g_servo_mode, 0, 0, nil)
+        end
+    end
     g_heat_cycle = g_heat_cycle + 1 
     
     t:read_temp(readout, ow_pin, t.C)  
      
-    if g_cnt >= 2 then
-        g_cnt = 0
+    if (g_cnt % 2) == 0 then
         sntp.sync("ua.pool.ntp.org",
             sntp_sync_callback,
             function(reason)

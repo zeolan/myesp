@@ -39,17 +39,8 @@ function set_mode(data)
             g_cycle_started = false
             set_speed(0)
         elseif g_vent_mode == MODE_ON then
+            g_cnt = 0
             set_speed(g_vent_speed)
-        end
-    end
-end
-
-function set_on_off(data)
-    if data ~= nil then
-        g_on_off = tonumber(data)
-        if g_on_off == 0 then
-            g_cycle_started = false
-            set_speed(0)
         end
     end
 end
@@ -105,7 +96,7 @@ end
 function set_cycle_on(data)
     g_cycle_on = tonumber(data)
     if g_cycle_on <= g_cycle then
-        saveSettings("cycle_on", g_cycle_on)
+        saveSettings("g_cycle_on", g_cycle_on)
     end
 end
 
@@ -121,9 +112,7 @@ end
 function process_mqtt(topic, data)
     local sub_topic = string.match(topic, "/([%w_]+)")
     if data ~= nil then
-        if sub_topic == "on_off" then
-            set_on_off(data)
-        elseif sub_topic == "mode" then
+        if sub_topic == "mode" then
             g_vent_mode = tonumber(data)
             set_mode(g_vent_mode)
         elseif sub_topic == "speed" then

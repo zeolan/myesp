@@ -5,7 +5,6 @@ MODE_POST_VENT = 3
 MODE_PRE_HEAT  = 4
 
 g_cycle_started = false
-g_on_off = 0
 g_cycle = nil
 g_cycle_on = nil
 g_vent_mode = MODE_OFF
@@ -13,15 +12,18 @@ g_vent_speed = nil
 g_topic = nil
 g_data = nil
 g_tmr_interval = nil
-g_t_max = 300
-g_t_min = 250
+--g_t_max = 250
+--g_t_min = 100
 g_heat_cycle = 0
 g_heat_status = 0
 g_cnt = 0
 g_servo_mode = 0
 g_mqtt_connected = false
+g_IP = "XXX.XXX.XXX.XXX"
 
 g_myTimer = nil
+
+dofile("read_settings.lua")
 
 m = nil
 t = require("ds18b20")
@@ -67,7 +69,7 @@ function servo_timer_start(duty)
     servo_timer:start()
 end
 
-dofile("read_settings.lua")
+--dofile("read_settings.lua")
 dofile("ds18b20_example.lua")
 dofile("sntp.lua")
 dofile("wifi_register.lua")
@@ -90,13 +92,14 @@ wifi.sta.config(station_cfg)
 
 -----------------------------------
 function send_status(status)
-    m:publish("vent/status", status, 1, 0, nil)
+    m:publish("vent/status", g_IP.."\n\n"..status, 1, 0, nil)
 end
 
 startMQTT = (function ()
     m = mqtt.Client("123", 120, "user1", "User1")
 
-    m:connect("m23.cloudmqtt.com", 16312, false, function(client)
+    m:connect("m23.cloudmqtt.com", 16312, false,
+        function(client)
             --print("mqtt client connected")
             g_mqtt_connected = true
 
@@ -106,15 +109,15 @@ startMQTT = (function ()
                     gpio.write(4, gpio.HIGH)
                     client:publish("vent/cycle_on", g_cycle_on, 0, 0, nil)
                     client:publish("vent/speed", g_vent_speed, 0, 0, nil)
-                    client:publish("vent/on_off", g_on_off, 0, 0, nil)
                     client:publish("vent/mode", g_vent_mode, 0, 0, nil)
-                    client:publish("vent/heat", 0, 0, 0, nil)
-                    send_status("READY")
+                    client:publish("vent/servo", g_servo_mode, 0, 0, nil)
+                    client:publish("vent/status", g_IP.."READY", 1, 0, nil)
+                    --send_status("READY")
                 end
             )
         end,
         function(client, reason)
-          print("failed reason: " .. reason)
+            print("failed reason: " .. reason)
         end
     )
 
