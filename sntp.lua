@@ -26,7 +26,11 @@ end
 
 function sntp_sync()
     g_cnt = g_cnt + 1
-    print("sntp_sync "..g_cnt)
+    --print("sntp_sync "..g_cnt)
+    if g_mqtt_connected then
+        send_status("READY")
+        --m:publish("vent/status", g_IP.."READY", 1, 0, nil)
+    end
     if g_vent_mode == MODE_ON then
         if g_cnt*10 >= g_cycle_on*60 then
             g_cnt = 0

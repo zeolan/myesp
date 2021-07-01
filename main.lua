@@ -92,7 +92,11 @@ wifi.sta.config(station_cfg)
 
 -----------------------------------
 function send_status(status)
-    m:publish("vent/status", g_IP.."\n\n"..status, 1, 0, nil)
+    local st = g_IP.."\n"..status
+    if g_vent_mode == MODE_ON then
+        st = st.."\n"..tostring(g_cnt/6).."("..tostring(g_cycle_on)..")"
+    end
+    m:publish("vent/status", st, 1, 0, nil)
 end
 
 startMQTT = (function ()
@@ -102,16 +106,15 @@ startMQTT = (function ()
         function(client)
             --print("mqtt client connected")
             g_mqtt_connected = true
-
+            client:publish("vent/cycle_on", g_cycle_on, 0, 1, nil)
+            client:publish("vent/speed", g_vent_speed, 0, 1, nil)
+            client:publish("vent/mode", g_vent_mode, 0, 1, nil)
+            client:publish("vent/servo", g_servo_mode, 0, 1, nil)
+            --client:publish("vent/status", g_IP.."READY", 1, 1, nil)
             -- subscribe topic with qos = 0
             client:subscribe("vent/+", 0,
                 function(client)
                     gpio.write(4, gpio.HIGH)
-                    client:publish("vent/cycle_on", g_cycle_on, 0, 0, nil)
-                    client:publish("vent/speed", g_vent_speed, 0, 0, nil)
-                    client:publish("vent/mode", g_vent_mode, 0, 0, nil)
-                    client:publish("vent/servo", g_servo_mode, 0, 0, nil)
-                    client:publish("vent/status", g_IP.."READY", 1, 0, nil)
                     --send_status("READY")
                 end
             )

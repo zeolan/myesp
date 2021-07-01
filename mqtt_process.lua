@@ -7,13 +7,7 @@ local H = 2
 function get_status(sub_topic, data)
     status = nil
     if sub_topic ~= nill and data ~= nill then
-        if sub_topic == "on_off" then
-            if tonumber(data) == 0 then
-                status = "OFF"
-            elseif tonumber(data) == 1 and g_cycle_started then
-                status = "ON"
-            end
-        elseif sub_topic == "mode" then
+        if sub_topic == "mode" then
             if tonumber(data) == 0 then
                 status = "OFF"
             elseif tonumber(data) == 1 then
