@@ -37,7 +37,7 @@ function receiver(sck, data)
 
     local buf = "HTTP/1.1 200 OK\r\nContent-type: text/html\r\n\r\n"
     buf = buf.."<h1> Vent Setup Page</h1>"
-    buf = buf.."<div> Usage: 192.168.88.xxx/?g_cycle_on=xx</div><br>"
+    buf = buf.."<div> Usage: 192.168.88.xxx/?g_t_min=100</div><br>"
     buf = buf.."<div> Available options: g_t_min, g_t_max, g_cycle, g_cycle_on</div><br>"
     --buf = buf.."<div>TO SET INTERVAL: esp8266_ip_adress/?setTimer=TIMER_INTERVAL_IN_SECONDS</div><br>"
     --buf = buf.."<span>Period&nbsp<input type='text' value='"..g_tmr_interval.."' size='4'>&nbsp</span>seconds<br><br>"

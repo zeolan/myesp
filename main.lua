@@ -106,10 +106,10 @@ startMQTT = (function ()
         function(client)
             --print("mqtt client connected")
             g_mqtt_connected = true
-            client:publish("vent/cycle_on", g_cycle_on, 0, 1, nil)
-            client:publish("vent/speed", g_vent_speed, 0, 1, nil)
-            client:publish("vent/mode", g_vent_mode, 0, 1, nil)
-            client:publish("vent/servo", g_servo_mode, 0, 1, nil)
+            client:publish("vent/cycle_on", g_cycle_on, 0, 0, nil)
+            client:publish("vent/speed", g_vent_speed, 0, 0, nil)
+            client:publish("vent/mode", g_vent_mode, 0, 0, nil)
+            client:publish("vent/servo", g_servo_mode, 0, 0, nil)
             --client:publish("vent/status", g_IP.."READY", 1, 1, nil)
             -- subscribe topic with qos = 0
             client:subscribe("vent/+", 0,

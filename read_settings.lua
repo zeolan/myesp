@@ -1,9 +1,10 @@
+print("Settings +++")
 local function readSettings(name, defaultValue) 
   if file.exists(name..".dat") then
     file.open(name..".dat","r+")
     value = file.read()
     file.close()
-    print(value)
+    print(string.format("%s = %d", name, value))
     return value
   else
     return defaultValue
@@ -16,3 +17,4 @@ g_vent_speed = tonumber(readSettings("vent_speed", 1))
 g_tmr_interval = tonumber(readSettings("interval", 60))
 g_t_min = tonumber(readSettings("g_t_min", 100))
 g_t_max = tonumber(readSettings("g_t_max", 250))
+print("Settings ---")
